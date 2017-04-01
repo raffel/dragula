@@ -20,6 +20,8 @@ function dragula (initialContainers, options) {
   var _offsetY; // reference y
   var _moveX; // reference move x
   var _moveY; // reference move y
+  var _clientX; // initial client x
+  var _clientY; // initial client y
   var _initialPos; // reference position for axis
   var _initialSibling; // reference sibling when grabbed
   var _currentSibling; // reference sibling now
@@ -181,6 +183,9 @@ function dragula (initialContainers, options) {
     var offset = getOffset(_item);
     _offsetX = getCoord('pageX', e) - offset.left;
     _offsetY = getCoord('pageY', e) - offset.top;
+
+    _clientX = getCoord('clientX', e);
+    _clientY = getCoord('clientY', e);
 
     switch (o.axis) {
       case 'x':
@@ -414,6 +419,39 @@ function dragula (initialContainers, options) {
     _mirror.style.left = (/y/.test(o.axis) && _initialPos ? _initialPos : x) + 'px';
     _mirror.style.top = (/x/.test(o.axis) && _initialPos ? _initialPos : y) + 'px';
 
+    var parent = o.containers[0].getBoundingClientRect();
+
+    if (/x/.test(o.axis)) {
+      if (clientX > _clientX) {
+        clientX = x + _item.clientWidth;
+        if (clientX > parent.right) {
+          var diff = clientX - parent.right;
+          _mirror.style.left = (parseFloat(_mirror.style.left, 10) - diff) + 'px';
+        }
+      }
+      else {
+        clientX = x;
+        if (clientX < parent.left) {
+          _mirror.style.left = parent.left;
+        }
+      }
+    }
+    else if (/y/.test(o.axis)) {
+      if (clientY > _clientY) {
+        clientY = y + _item.clientHeight;
+        if (clientY > parent.bottom) {
+          var diff = clientY - parent.bottom;
+          _mirror.style.top = (parseFloat(_mirror.style.top, 10) - diff) + 'px';
+        }
+      }
+      else {
+        clientY = y;
+        if (clientY < parent.top) {
+          _mirror.style.top = parent.top;
+        }
+      }
+    }
+
     var item = _copy || _item;
     var elementBehindCursor = getElementBehindPoint(_mirror, clientX, clientY);
     var dropTarget = findDropTarget(elementBehindCursor, clientX, clientY);
@@ -478,6 +516,8 @@ function dragula (initialContainers, options) {
         animate(itemRect, item, o.animation);
       }
       drake.emit('shadow', item, dropTarget, _source);
+      _clientX = getCoord('clientX', e);
+      _clientY = getCoord('clientY', e);
     }
     function moved (type) {
       drake.emit(type, item, _lastDropTarget, _source);
