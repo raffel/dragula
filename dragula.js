@@ -432,7 +432,7 @@ function dragula (initialContainers, options) {
       else {
         clientX = x;
         if (clientX < parent.left) {
-          _mirror.style.left = parent.left;
+          _mirror.style.left = parent.left + 'px';
         }
       }
     }
@@ -447,7 +447,7 @@ function dragula (initialContainers, options) {
       else {
         clientY = y;
         if (clientY < parent.top) {
-          _mirror.style.top = parent.top;
+          _mirror.style.top = parent.top + 'px';
         }
       }
     }
